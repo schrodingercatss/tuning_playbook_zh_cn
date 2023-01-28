@@ -649,19 +649,19 @@ Batch norm 很复杂，一般来说，应该使用与计算梯度不同的 batch
 
 **总结**： 输入管道性能受限的原因及干预措施与具体任务高度相关，使用性能分析工具并注意常见的一些问题。
 
-+ 使用适当的性能分析工具来诊性能受限的输入管道，例如，用于 JAX的 [Perfetto](https://jax.readthedocs.io/en/latest/profiling.html) 或用于 TensorFlow的 [TensorFlow profiler](https://www.tensorflow.org/guide/profiler)。
++ 使用适当的性能分析工具来诊性能受限的输入管道，例如，用于 JAX 的 [Perfetto](https://jax.readthedocs.io/en/latest/profiling.html) 或用于 TensorFlow 的 [TensorFlow profiler](https://www.tensorflow.org/guide/profiler)。
 + 归根结底，具体原因和干预措施将高度依赖于任务。更广泛的工程考虑(如减少磁盘空间占用)可能会导致较差的输入管道性能。
 + 常见问题：
     +  数据未与训练进程存放在同一位置，从而导致I/O延迟(通过网络读取训练数据时可能会发生这种情况)。
     + 昂贵的在线数据预处理(考虑进行一次性离线预处理并保存)。
-    + 无意间的同步屏障干扰数据管道预读取。例如，在CommonLoopUtils([link](https://github.com/google/CommonLoopUtils/blob/fea2518ada8814a78e1492023fd9f00edb0b0568/clu/metrics.py#L291))中同步设备和主机之间的数据时。
+    + 无意间的同步屏障干扰数据管道预读取。例如，在 CommonLoopUtils([link](https://github.com/google/CommonLoopUtils/blob/fea2518ada8814a78e1492023fd9f00edb0b0568/clu/metrics.py#L291)) 中同步设备和主机之间的数据时。
 + 常见技巧：
-    + 例如使用[tf.data.Dataset.prefetch](https://www.tensorflow.org/guide/data_performance#prefetching)之类的工具对输入管道预读取数据。
+    + 例如使用 [tf.data.Dataset.prefetch](https://www.tensorflow.org/guide/data_performance#prefetching) 之类的工具对输入管道预读取数据。
     + 尽可能早地在管道中删除不必要的特征和元数据。
-    + 通过使用[tf.data service](https://www.tensorflow.org/api_docs/python/tf/data/experimental/service)来增加输入管道生成数据的进程的数量。
+    + 通过使用 [tf.data service](https://www.tensorflow.org/api_docs/python/tf/data/experimental/service) 来增加输入管道生成数据的进程的数量。
 
 ### 评估模型性能
-**总结**： 在比训练更大的 BatchSize 规模上进行评估。以定期的步长间隔进行评估，而不是定期的时间间隔。（注：如100个epoch评估一次等等，而不是类似10分钟评估一次）。
+**总结**： 使用比训练时更大的 batch size 进行评估。在固定步长间隔进行评估，而不是固定的时间间隔。（注：如100个epoch评估一次，而不是10分钟评估一次）。
 
 #### 评估设置
 
